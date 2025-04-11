@@ -8,12 +8,10 @@
  ********************************************************************/
 
 import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ProblemSolutions {
 
-    // ========== SELECTION SORT IMPLEMENTATION ==========
+    // ========== SELECTION SORT (27 points) ==========
     public void selectionSort(int[] values) {
         selectionSort(values, true);
     }
@@ -27,40 +25,51 @@ public class ProblemSolutions {
                     extremeIndex = j;
                 }
             }
+            // Swap elements
             int temp = values[i];
             values[i] = values[extremeIndex];
             values[extremeIndex] = temp;
         }
     }
 
-    // ========== MERGE SORT WITH DIVISIBLE BY K FIRST ==========
+    // ========== MERGE SORT DIVISIBLE BY K FIRST (19 points) ==========
     public void mergeSortDivisibleByKFirst(int[] values, int k) {
         if (values == null || values.length <= 1 || k == 0) return;
         
-        // First pass: separate divisible and non-divisible while maintaining order
-        List<Integer> divisible = new ArrayList<>();
-        List<Integer> nonDivisible = new ArrayList<>();
-        
-        for (int num : values) {
-            if (num % k == 0) {
-                divisible.add(num);
-            } else {
-                nonDivisible.add(num);
-            }
+        // Create a copy to preserve original indices for stability
+        Integer[] withIndices = new Integer[values.length];
+        for (int i = 0; i < values.length; i++) {
+            withIndices[i] = values[i];
         }
         
-        // Second pass: sort each group
-        int[] sortedDiv = divisible.stream().mapToInt(i->i).toArray();
-        int[] sortedNonDiv = nonDivisible.stream().mapToInt(i->i).toArray();
-        Arrays.sort(sortedDiv);
-        Arrays.sort(sortedNonDiv);
+        // Custom sort that:
+        // 1. Puts divisible by k first
+        // 2. Maintains original order for ties
+        Arrays.sort(withIndices, (a, b) -> {
+            boolean aDiv = (a % k == 0);
+            boolean bDiv = (b % k == 0);
+            if (aDiv != bDiv) {
+                return aDiv ? -1 : 1;
+            }
+            return 0; // Maintain original order
+        });
         
-        // Combine results
-        System.arraycopy(sortedDiv, 0, values, 0, sortedDiv.length);
-        System.arraycopy(sortedNonDiv, 0, values, sortedDiv.length, sortedNonDiv.length);
+        // Copy back to original array
+        for (int i = 0; i < values.length; i++) {
+            values[i] = withIndices[i];
+        }
+        
+        // Now sort the divisible and non-divisible sections separately
+        int divCount = 0;
+        for (int num : values) {
+            if (num % k == 0) divCount++;
+        }
+        
+        Arrays.sort(values, 0, divCount); // Sort divisible portion
+        Arrays.sort(values, divCount, values.length); // Sort non-divisible portion
     }
 
-    // ========== ASTEROIDS DESTROYED PROBLEM ==========
+    // ========== DESTROYING ASTEROIDS (27 points) ==========
     public static boolean asteroidsDestroyed(int mass, int[] asteroids) {
         if (asteroids == null || asteroids.length == 0) return true;
         Arrays.sort(asteroids);
@@ -72,7 +81,7 @@ public class ProblemSolutions {
         return true;
     }
 
-    // ========== NUMBER OF RESCUE SLEDS PROBLEM ==========
+    // ========== NUMBER OF RESCUE SLEDS (27 points) ==========
     public static int numRescueSleds(int[] people, int limit) {
         if (people == null || people.length == 0) return 0;
         Arrays.sort(people);
