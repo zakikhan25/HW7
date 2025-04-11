@@ -27,7 +27,6 @@ public class ProblemSolutions {
                     extremeIndex = j;
                 }
             }
-            // Swap elements
             int temp = values[i];
             values[i] = values[extremeIndex];
             values[extremeIndex] = temp;
@@ -38,7 +37,7 @@ public class ProblemSolutions {
     public void mergeSortDivisibleByKFirst(int[] values, int k) {
         if (values == null || values.length <= 1 || k == 0) return;
         
-        // Separate divisible and non-divisible elements
+        // First pass: separate divisible and non-divisible while maintaining order
         List<Integer> divisible = new ArrayList<>();
         List<Integer> nonDivisible = new ArrayList<>();
         
@@ -50,30 +49,25 @@ public class ProblemSolutions {
             }
         }
         
-        // Convert Lists to arrays and sort them
-        int[] divArray = divisible.stream().mapToInt(i -> i).toArray();
-        int[] nonDivArray = nonDivisible.stream().mapToInt(i -> i).toArray();
+        // Second pass: sort each group
+        int[] sortedDiv = divisible.stream().mapToInt(i->i).toArray();
+        int[] sortedNonDiv = nonDivisible.stream().mapToInt(i->i).toArray();
+        Arrays.sort(sortedDiv);
+        Arrays.sort(sortedNonDiv);
         
-        Arrays.sort(divArray);
-        Arrays.sort(nonDivArray);
-        
-        // Combine back into original array
-        System.arraycopy(divArray, 0, values, 0, divArray.length);
-        System.arraycopy(nonDivArray, 0, values, divArray.length, nonDivArray.length);
+        // Combine results
+        System.arraycopy(sortedDiv, 0, values, 0, sortedDiv.length);
+        System.arraycopy(sortedNonDiv, 0, values, sortedDiv.length, sortedNonDiv.length);
     }
 
     // ========== ASTEROIDS DESTROYED PROBLEM ==========
     public static boolean asteroidsDestroyed(int mass, int[] asteroids) {
         if (asteroids == null || asteroids.length == 0) return true;
-        
         Arrays.sort(asteroids);
-        long currentMass = mass; // Use long to prevent integer overflow
-        
+        long planetMass = mass;
         for (int asteroid : asteroids) {
-            if (currentMass < asteroid) {
-                return false;
-            }
-            currentMass += asteroid;
+            if (planetMass < asteroid) return false;
+            planetMass += asteroid;
         }
         return true;
     }
@@ -81,17 +75,12 @@ public class ProblemSolutions {
     // ========== NUMBER OF RESCUE SLEDS PROBLEM ==========
     public static int numRescueSleds(int[] people, int limit) {
         if (people == null || people.length == 0) return 0;
-        
         Arrays.sort(people);
         int sleds = 0;
-        int left = 0;
-        int right = people.length - 1;
-        
-        while (left <= right) {
-            if (people[left] + people[right] <= limit) {
-                left++;
-            }
-            right--;
+        int i = 0, j = people.length - 1;
+        while (i <= j) {
+            if (people[i] + people[j] <= limit) i++;
+            j--;
             sleds++;
         }
         return sleds;
