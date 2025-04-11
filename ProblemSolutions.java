@@ -32,7 +32,7 @@ public class ProblemSolutions {
         }
     }
 
-    // Merge Sort with divisible by k first
+    // Merge Sort with divisible by k first - FIXED VERSION
     public void mergeSortDivisibleByKFirst(int[] values, int k) {
         if (values == null || values.length <= 1 || k == 0) return;
         mergeSort(values, k, 0, values.length - 1);
@@ -47,49 +47,67 @@ public class ProblemSolutions {
     }
 
     private void merge(int[] arr, int k, int left, int mid, int right) {
-        int[] temp = new int[right - left + 1];
-        int i = left, j = mid + 1, t = 0;
+        // Create temporary arrays
+        int[] leftArr = Arrays.copyOfRange(arr, left, mid + 1);
+        int[] rightArr = Arrays.copyOfRange(arr, mid + 1, right + 1);
         
-        // First place elements divisible by k
-        while (i <= mid && j <= right) {
-            boolean iDiv = arr[i] % k == 0;
-            boolean jDiv = arr[j] % k == 0;
+        int i = 0, j = 0, pos = left;
+        
+        // First place elements divisible by k from both halves
+        while (i < leftArr.length && j < rightArr.length) {
+            boolean leftDiv = (leftArr[i] % k == 0);
+            boolean rightDiv = (rightArr[j] % k == 0);
             
-            if (iDiv && jDiv) {
-                temp[t++] = arr[i] <= arr[j] ? arr[i++] : arr[j++];
-            } else if (iDiv) {
-                temp[t++] = arr[i++];
-            } else if (jDiv) {
-                temp[t++] = arr[j++];
+            if (leftDiv && rightDiv) {
+                if (leftArr[i] <= rightArr[j]) {
+                    arr[pos++] = leftArr[i++];
+                } else {
+                    arr[pos++] = rightArr[j++];
+                }
+            } else if (leftDiv) {
+                arr[pos++] = leftArr[i++];
+            } else if (rightDiv) {
+                arr[pos++] = rightArr[j++];
             } else {
                 break;
             }
         }
         
         // Remaining left divisible elements
-        while (i <= mid && arr[i] % k == 0) temp[t++] = arr[i++];
-        
-        // Remaining right divisible elements
-        while (j <= right && arr[j] % k == 0) temp[t++] = arr[j++];
-        
-        // Then place non-divisible elements in order
-        i = left;
-        j = mid + 1;
-        
-        // Skip already processed divisible elements
-        while (i <= mid && arr[i] % k == 0) i++;
-        while (j <= right && arr[j] % k == 0) j++;
-        
-        while (i <= mid && j <= right) {
-            temp[t++] = arr[i] <= arr[j] ? arr[i++] : arr[j++];
+        while (i < leftArr.length && leftArr[i] % k == 0) {
+            arr[pos++] = leftArr[i++];
         }
         
-        // Remaining elements
-        while (i <= mid) temp[t++] = arr[i++];
-        while (j <= right) temp[t++] = arr[j++];
+        // Remaining right divisible elements
+        while (j < rightArr.length && rightArr[j] % k == 0) {
+            arr[pos++] = rightArr[j++];
+        }
         
-        // Copy back to original array
-        System.arraycopy(temp, 0, arr, left, temp.length);
+        // Now merge non-divisible elements from both halves
+        i = 0;
+        j = 0;
+        
+        // Skip already processed divisible elements
+        while (i < leftArr.length && leftArr[i] % k == 0) i++;
+        while (j < rightArr.length && rightArr[j] % k == 0) j++;
+        
+        while (i < leftArr.length && j < rightArr.length) {
+            if (leftArr[i] <= rightArr[j]) {
+                arr[pos++] = leftArr[i++];
+            } else {
+                arr[pos++] = rightArr[j++];
+            }
+        }
+        
+        // Remaining left elements
+        while (i < leftArr.length) {
+            arr[pos++] = leftArr[i++];
+        }
+        
+        // Remaining right elements
+        while (j < rightArr.length) {
+            arr[pos++] = rightArr[j++];
+        }
     }
 
     // Asteroids Destroyed problem
